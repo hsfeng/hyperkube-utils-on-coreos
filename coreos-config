@@ -1,0 +1,38 @@
+#!/bin/sh
+
+RUN_CMD="$@"
+[ -z "${RUN_CMD:-}" ] && echo "No cluster IP address or hostname supplied" && exit 1
+
+echo "Warning, this will customize your CoreOS machine."
+echo "Proceed? [Y/n]"
+
+read resp
+if [[ $resp == "n" || $resp == "N" ]]; then
+  exit 0
+fi
+
+echo "Writing the cluster network ..."
+/usr/bin/echo COREOS_PRIVATE_IPV4=$1 > /etc/environment
+
+if [ -z "$INITIAL_CLUSTER" ]; then
+    INITIAL_CLUSTER="`hostname`=http://$1:2380"
+else
+    INITIAL_CLUSTER="$INITIAL_CLUSTER,`hostname`=http://$1:2380"
+fi
+
+echo "Writing the etcd2 environment ..."
+echo "ETCD_NAME=\"`hostname`\""  > /etc/etcd2-environment;
+echo "ETCD_LISTEN_PEER_URLS=\"http://$1:2380\""  >> /etc/etcd2-environment;
+echo "ETCD_LISTEN_CLIENT_URLS=\"http://0.0.0.0:2379,http://0.0.0.0:4001\""  >> /etc/etcd2-environment;
+echo "ETCD_ADVERTISE_CLIENT_URLS=\"http://$1:2379\"" >> /etc/etcd2-environment;
+echo "ETCD_INITIAL_ADVERTISE_PEER_URLS=\"http://$1:2380\"" >> /etc/etcd2-environment;
+echo "ETCD_INITIAL_CLUSTER_TOKEN=\"my-etcd-cluster\"" >> /etc/etcd2-environment;
+echo "ETCD_INITIAL_CLUSTER=\"$INITIAL_CLUSTER\"" >> /etc/etcd2-environment;
+echo "ETCD_INITIAL_CLUSTER_STATE=\"new\"" >> /etc/etcd2-environment;
+
+echo "Writing the fleet environment ..."
+echo "FLEET_PUBLIC_IP=$1" > /etc/fleet-environment;
+echo "FLEET_METADATA=role=node,name=$1" >> /etc/fleet-environment;
+
+echo "Writing the flannel environment ..."
+echo "FLANNELD_IFACE=$1" > /etc/flanneld-environment;

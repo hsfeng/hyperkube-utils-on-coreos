@@ -1,0 +1,67 @@
+#cloud-config
+
+hostname: "node-01"
+coreos:
+  units:
+    - name: systemd-networkd-wait-online.service
+      command: start
+    - name: "etcd2.service"
+      drop-ins:
+        - name: 10-etcd-env.conf
+          content: |
+            [Service]
+            EnvironmentFile=/etc/etcd2-environment
+      command: "start"
+    - name: "fleet.service"
+      drop-ins:
+        - name: 20-fleet-env.conf
+          content: |
+            [Service]
+            EnvironmentFile=/etc/fleet-environment 
+      command: "start"
+    - name: flanneld.service
+      drop-ins:
+        - name: 50-network-config.conf
+          content: |
+            [Service]
+            EnvironmentFile=/etc/flanneld-environment
+            ExecStartPre=/usr/bin/etcdctl set /coreos.com/network/config '{ "Network": "10.1.0.0/16" }'
+      command: start
+    - name: settimezone.service
+      command: start
+      content: |
+        [Unit]
+        Description=Set the timezone
+
+        [Service]
+        ExecStart=/usr/bin/timedatectl set-timezone Asia/Taipei
+        RemainAfterExit=yes
+        Type=oneshot
+    - name: rpcbind.service
+      enable: true
+      command: start
+    - name: rpc-statd.service
+      enable: true
+      command: start
+
+write_files:
+  - path: /etc/ntp.conf
+    content: |
+      # Common pool
+      server 0.coreos.pool.ntp.org
+      server 1.coreos.pool.ntp.org
+      server 2.coreos.pool.ntp.org
+      server 3.coreos.pool.ntp.org
+
+      # - Allow only time queries, at a limited rate.
+      # - Allow all local queries (IPv4, IPv6)
+      restrict default nomodify nopeer noquery limited kod
+      restrict 127.0.0.1
+      restrict [::1]
+
+users:  
+  - name: core
+    passwd: $1$5UKI/4yT$267oDA.9Eh/2UPpWN3Vk7/
+  - groups:
+      - sudo
+      - docker

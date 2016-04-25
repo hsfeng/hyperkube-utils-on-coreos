@@ -1,0 +1,20 @@
+#!/bin/bash
+
+RUN_CMD="$@"
+[ -z "${RUN_CMD:-}" ] && echo "No ETCD member supplied" && exit 1
+
+
+unset INITIAL_CLUSTER;
+
+MEMBERS_MASTER=`curl -s http://$1:2379/v2/members | sed s#{#"\n"{#g | grep name`;
+for line in $MEMBERS_MASTER; do
+      NAME=`echo $line | sed s#,\"#"\n",{#g | grep name | awk -F '"' ' {print $3} '`;
+      PEER_URL=`echo $line | sed s#,\"#"\n",{#g | grep peerURLs | awk -F '"' ' {print $3} '`;
+      INITIAL_CLUSTER=`echo "$INITIAL_CLUSTER,$NAME=$PEER_URL"`;
+done
+
+INITIAL_CLUSTER=`echo $INITIAL_CLUSTER | sed s#\^,##g`;
+
+echo $INITIAL_CLUSTER;
+
+export INITIAL_CLUSTER;
