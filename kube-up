@@ -4,12 +4,14 @@ RUN_CMD="$@"
 [ -z "${RUN_CMD:-}" ] && echo "No cluster IP address or hostname supplied" && exit 1
 
 
-wget https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/images/hyperkube/master-multi.json -O master.json
+wget https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/images/hyperkube/static-pods/master-multi.json -O master.json
 
 echo "Updating master.json"
 
 export ARCH=amd64
 export VERSION=v1.2.2
+export K8S_VERSION=1.2.2
+
 sed -i.back "s|ARCH|${ARCH}|g" master.json
 sed -i.back "s|VERSION|${VERSION}|g" master.json
 sed -i.back "s|\"--master=127.0.0.1:8080\"\,|\"--leader-elect=true\"\,\n              \"--master=127.0.0.1:8080\"\,|g" master.json
@@ -23,7 +25,7 @@ sudo docker run \
     --volume=/var/lib/kubelet/:/var/lib/kubelet:rw \
     --volume=/var/run:/var/run:rw \
     --volume=/dev:/dev:rw \
-    --volume=/home/core/master.json:/etc/kubernetes/manifests-multi/master.json:rw \
+    --volume=${PWD}/master.json:/etc/kubernetes/manifests-multi/master.json:rw \
     --net=host \
     --privileged=true \
     --pid=host \

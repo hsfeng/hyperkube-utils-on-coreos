@@ -1,14 +1,14 @@
 #!/bin/bash
 
 RUN_CMD="$@"
-[ -z "${RUN_CMD:-}" ] && echo "No ETCD member supplied" && exit 1
-
 
 unset INITIAL_CLUSTER;
 
 CLUSTER_ID=`curl 127.0.0.1:2379/v2/members -vv 2>&1 | grep 'X-Etcd-Cluster-Id' | sed -n "s/.*: \(.*\)/\1/p"`
 
-echo "cluster: $CLUSTER_ID"
+[ -z "${CLUSTER_ID:-}" ] && CLUSTER_ID='[New]'
+
+echo "Cluster: $CLUSTER_ID"
 
 MEMBERS_MASTER=`curl -s http://$1:2379/v2/members | sed s#{#"\n"{#g | grep name`;
 for line in $MEMBERS_MASTER; do
