@@ -4,7 +4,7 @@ RUN_CMD="$@"
 
 unset INITIAL_CLUSTER;
 
-CLUSTER_ID=`curl 127.0.0.1:2379/v2/members -vv 2>&1 | grep 'X-Etcd-Cluster-Id' | sed -n "s/.*: \(.*\)/\1/p"`
+CLUSTER_ID=`curl $1:2379/v2/members -vv 2>&1 | grep 'X-Etcd-Cluster-Id' | sed -n "s/.*: \(.*\)/\1/p"`
 
 [ -z "${CLUSTER_ID:-}" ] && CLUSTER_ID='[New]'
 
