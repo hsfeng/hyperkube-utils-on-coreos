@@ -1,6 +1,6 @@
 #cloud-config
 
-hostname: "node-01"
+hostname: "vsdx0"
 coreos:
   units:
     - name: systemd-networkd-wait-online.service

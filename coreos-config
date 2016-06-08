@@ -36,3 +36,7 @@ echo "FLEET_METADATA=role=node,name=$1" >> /etc/fleet-environment;
 
 echo "Writing the flannel environment ..."
 echo "FLANNELD_IFACE=$1" > /etc/flanneld-environment;
+
+cp ./cloud-config.yml /var/lib/coreos-install/user_data
+
+coreos-cloudinit --from-file=/var/lib/coreos-install/user_data
