@@ -2,8 +2,32 @@
 
 Deploy a Kubernetes HA Cluster on CoreOS using hyperkube
 
-`$ source ./init-etcd-member <etcd-member-host>`
+### First node ######
 
-`$ ./coreos-config <cluster ip address>`
+`$ git clone https://github.com/hsfeng/hyperkube-utils-on-coreos.git`
 
-`$ ./kube-up <cluster ip address>`
+`$ cd hyperkube-utils-on-coreos`
+
+`$ sudo ./coreos-config <node ip address>`
+
+`$ sudo reboot`
+
+### Other nodes ####
+
+`$ git clone https://github.com/hsfeng/hyperkube-utils-on-coreos.git`
+
+`$ cd hyperkube-utils-on-coreos`
+
+`$ source ./init-etcd-members <first node ip>`
+
+`$ sudo -E ./coreos-config <node ip address>`
+
+`$ sudo reboot`
+
+
+
+### Run kube-up ####
+
+After ETCD cluster has been initialized. Run kube-up on each node
+
+`$ ./kube-up <node ip address>`
