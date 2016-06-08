@@ -8,10 +8,12 @@ wget https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/imag
 
 echo "Updating master.json"
 
+export REGISTRY=gcr.io/google_containers
 export ARCH=amd64
-export VERSION=v1.2.2
-export K8S_VERSION=1.2.2
+export VERSION=v1.2.4
+export K8S_VERSION=1.2.4
 
+sed -i.back "s|REGISTRY|${REGISTRY}|g" master.json
 sed -i.back "s|ARCH|${ARCH}|g" master.json
 sed -i.back "s|VERSION|${VERSION}|g" master.json
 sed -i.back "s|\"--master=127.0.0.1:8080\"\,|\"--leader-elect=true\"\,\n              \"--master=127.0.0.1:8080\"\,|g" master.json
