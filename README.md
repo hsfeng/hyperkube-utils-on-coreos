@@ -31,3 +31,9 @@ Deploy a Kubernetes HA Cluster on CoreOS using hyperkube
 After ETCD cluster has been initialized. Run kube-up on each node
 
 `$ ./kube-up <node ip address>`
+
+
+### Create kube-system namespace ###
+`$ wget https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/mesos/docker/kube-system-ns.yaml`
+
+`kubectl create -f kube-system-ns.yaml`
