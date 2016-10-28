@@ -1,4 +1,6 @@
-# hyperkube-utils-on-coreos
+# This repo is being deprecated. Please check out https://github.com/cdxvirt/k8sup
+
+#hyperkube-utils-on-coreos
 
 Deploy a Kubernetes HA Cluster on CoreOS using hyperkube
 
